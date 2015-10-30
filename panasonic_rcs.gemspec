@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Emery A. Miller"]
   spec.email         = ["emiller@jive.com"]
   spec.summary       = %q{A component to make XMLRPC calls to Panasonic's RCS service}
-  spec.description   = %q{Mainly handles list all and add phone commands to Panasonic's RCS service}
+  spec.description   = %q{A ruby wrapper around Panasonic's XMLRPC RCS service}
   spec.homepage      = ""
   spec.license       = "MIT"
 
