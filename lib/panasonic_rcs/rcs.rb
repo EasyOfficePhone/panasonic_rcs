@@ -46,6 +46,19 @@ module PanasonicRcs
       body['params']['param']['value']['boolean'] == "1"
     end
 
+    def unregister_phone(raw_mac_addr)
+      mac_addr = raw_mac_addr.gsub(/[^[:alnum:]]/, '')
+      body = "<?xml version=\"1.0\"?><methodCall><methodName>ipredirect.unregisterPhone</methodName><params><param><value><string>#{mac_addr}</string></value></param></params></methodCall>"
+      @response = connection.post(body)
+      fail RcsError.new "System responded with a #{@response.status} status." if @response.status != 200
+
+      body = @response.body['methodResponse']
+      if fault = body['fault']
+        fault_string = fault['value']['struct']['member'][1]['value']['string']
+        fail RcsError.new fault_string
+      end
+      body['params']['param']['value']['boolean'] == "1"
+    end
 
     private
 

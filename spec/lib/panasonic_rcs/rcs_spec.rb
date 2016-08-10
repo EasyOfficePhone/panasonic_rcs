@@ -8,6 +8,8 @@ describe PanasonicRcs::Rcs do
   let(:register_error){'<?xml version="1.0" encoding="UTF-8"?> <methodResponse> <fault> <value><struct> <member> <name>faultCode</name> <value><int>201</int></value> </member> <member> <name>faultString</name> <value><string>08F0C0123456:Invalid MAC address</string></value> </member> </struct></value> </fault> </methodResponse>'}
   let(:getphone_success) {'<?xml version="1.0" encoding="UTF-8"?> <methodResponse><params> <param> <value> <struct> <member> <name>mac</name> <value><string>08F0C0123456</string></value> </member> <member> <name>url</name> <value><string>http://xxx/xxxxxx/xxx?xxx={MAC}</string></value> </member> <member> <name>register_date</name> <value><dateTime.iso8601>2011-07-12T05:32:12Z</dateTime.iso8601></value> </member> <member> <name>access_date</name> <value><dateTime.iso8601>2011-07-12T06:08:35Z</dateTime.iso8601></value> </member> <member> <name>note</name> <value><string>For test</string></value> </member> <member> <name>model</name> <value><string>KX-TGP550T01</string></value> </member> <member> <name>version</name> <value><string>1.00</string></value> </member> <member> <name>profile</name> <value><string> for KX-TGP500</string></value> </member> </struct> </value></param></params></methodResponse>'}
   let(:getphone_error) {'<?xml version="1.0" encoding="UTF-8"?> <methodResponse> <fault> <value><struct> <member> <name>faultCode</name> <value><int>203</int></value> </member> <member> <name>faultString</name> <value><string>08F0C0123456: You are not owner of the phone.</string></value> </member> </struct></value></fault></methodResponse>'}
+  let(:unregister_success){'<?xml version="1.0" encoding="UTF-8"?> <methodResponse> <params> <param> <value><boolean>1</boolean></value> </param> </params> </methodResponse>'}
+  let(:unregister_error){'<?xml version="1.0" encoding="UTF-8"?> <methodResponse> <fault> <value><struct> <member> <name>faultCode</name> <value><int>201</int></value> </member> <member> <name>faultString</name> <value><string>08F0C0123456:Invalid MAC address</string></value> </member> </struct></value> </fault> </methodResponse>'}
 
   let(:test_adapter) { Faraday::Adapter::Test::Stubs.new }
   let(:connection) {PanasonicRcs::Connection.new(adapter: [:test, test_adapter])}
@@ -46,5 +48,15 @@ describe PanasonicRcs::Rcs do
   it 'checks on a phone not in our system yet' do
     test_adapter.post('/redirect/xmlrpc') {[200, {'Content-Type' => 'application/xml'}, getphone_error]}
     expect{subject.phone('123456789123')}.to raise_error RcsError, /You are not owner/
+  end
+
+  it 'unregisters a phone successfully' do
+    test_adapter.post('/redirect/xmlrpc') {[200, {'Content-Type' => 'application/xml'}, unregister_success]}
+    expect(subject.unregister_phone('123456789123')).to eq true
+  end
+
+  it 'fails to register a phone and reports the error' do
+    test_adapter.post('/redirect/xmlrpc') {[200, {'Content-Type' => 'application/xml'}, unregister_error]}
+    expect{subject.unregister_phone('123456789123')}.to raise_error RcsError, /Invalid MAC address/
   end
 end

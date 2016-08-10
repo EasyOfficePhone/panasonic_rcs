@@ -43,6 +43,10 @@ rcs.phone('0040F0CC8E43')
 rcs.register_phone_with_profile('0040F0CC8E43', 'tgp500')
 
 # => true
+
+rcs.unregister_phone('0040F0CC8E43')
+
+# => true
 ```
 
 Errors will raise an RcsError exception.
